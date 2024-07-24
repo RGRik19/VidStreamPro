@@ -1,0 +1,25 @@
+{
+  "name": "chaiaurbackend",
+  "version": "1.0.0",
+  "description": "YouTube Clone Backend Project",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "keywords": [
+    "node",
+    "mongooser",
+    "YouTube",
+    "Video",
+    "Player"
+  ],
+  "author": "Rounak Goswami",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.1",
+    "nodemon": "^3.1.4"
+  }
+}
