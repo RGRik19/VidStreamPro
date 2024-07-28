@@ -8,8 +8,8 @@ import jwt from "jsonwebtoken";
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
         const user = await User.findById(userId)
-        const accessToken = user.generateAccessToken()
-        const refreshToken = user.generateRefreshToken()
+        const accessToken = await user.generateAccessToken() // Await statements are very important whenever talking with DB
+        const refreshToken = await user.generateRefreshToken()
 
         user.refreshToken = refreshToken
         await user.save({ validateBeforeSave: false })
@@ -83,14 +83,14 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
     // Step-1 : req.body->data
-    const { email, username, password } = req.body;
+    const { email, userName, password } = req.body;
 
-    // Step-2 : username / email
-    if (!email && !username)
+    // Step-2 : userName / email
+    if (!email && !userName)
         throw new ApiError("Username or Email is required !!", 400)
 
     // Step-3 : find the user
-    const user = await User.findOne({ $or: [{ email }, { username }] });
+    const user = await User.findOne({ $or: [{ email }, { userName }] });
 
     // Step-4 : Not found throw err
     if (!user)
