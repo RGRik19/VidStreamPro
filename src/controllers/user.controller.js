@@ -27,7 +27,6 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
   // Step-1 : Get user details from Frontend
   const { fullName, userName, email, password } = req.body;
-  console.log(`Body logging`, req.body);
 
   // Step-2 : Validation Checks
   if (
@@ -55,8 +54,6 @@ const registerUser = asyncHandler(async (req, res) => {
   )
     coverImageLocalPath = req.files.coverImage[0].path;
 
-  console.log(`Files logging : `, req.files);
-
   if (!avatarLocalPath) throw new ApiError("Avatar file is required !!", 400);
 
   // Step-5 : Upload them to cloudinary, Avatar check since it is required field
@@ -64,7 +61,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
   if (!avatar) {
-    throw new ApiError("Avatar file is required !!", 400);
+    throw new ApiError("Avatar file is required !!", 500);
   }
 
   // Step-6 : Create user object and create entry in DB
@@ -196,7 +193,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
       user?._id
     );
-    console.log(accessToken, refreshToken);
+
     return res
       .status(200)
       .cookie("accessToken", accessToken, options)
@@ -266,6 +263,8 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 });
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
+  //TODO :- Delete the already stored file from Cloudinary of the current user before updating its new URL
+
   const avatarLocalPath = req.file?.path;
 
   if (!avatarLocalPath) throw new ApiError("Avatar File is Missing !!", 400);
@@ -291,6 +290,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 });
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
+  //TODO :- Delete the already stored file from Cloudinary of the current user before updating its new URL
   const coverImageLocalPath = req.file?.path;
 
   if (!coverImageLocalPath)
