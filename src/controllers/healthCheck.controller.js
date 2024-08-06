@@ -5,6 +5,11 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 
 const healthcheck = asyncHandler(async (req, res) => {
     //TODO: build a healthcheck response that simply returns the OK status as json with a message
+    try {
+        return new ApiResponse(200, "OK");
+    } catch (error) {
+        return new ApiError("Internal Server Error", 500, error);
+    }
 })
 
 export {
