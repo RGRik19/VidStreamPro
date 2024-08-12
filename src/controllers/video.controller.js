@@ -10,6 +10,74 @@ import { deleteImageFromCloudinary, deleteVideoFromCloudinary, uploadOnCloudinar
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
     //TODO: get all videos based on query, sort, pagination
+    if (!userId && !isValidObjectId(userId))
+        throw new ApiError("Invalid User !!", 401);
+
+    const allVideos = await Video.aggregate([
+        {
+            $match: {
+                isPublished: true,
+            }
+        },
+        {
+            $sort: {
+                [sortBy]: sortType
+            }
+        },
+        {
+            $match: {
+                $or: [
+                    {
+                        title: {
+                            $regex: query,
+                            $options: "i"
+                        }
+                    },
+                    {
+                        description: {
+                            $regex: query,
+                            $options: "i"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                foreignField: "_id",
+                localField: "owner",
+                as: "owner",
+                pipeline: [
+                    {
+                        $project: {
+                            userName: 1,
+                            fullName: 1,
+                            avatar: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $unwind: "$owner"
+        }
+    ])
+
+    if (!allVideos)
+        throw new ApiError("Something went wrong in fetching from DB !!", 500);
+
+    const paginatedVideos = await Video.aggregatePaginate(allVideos,
+        {
+            page: parseInt(page, 10),
+            limit: parseInt(limit, 10),
+        }
+    )
+
+    if (!paginatedVideos)
+        throw new ApiError("Something went wrong in fetching from DB !!", 500);
+
+    return res.status(200).json(new ApiResponse(200, "Videos fetched successfully !!", paginatedVideos));
 })
 
 const publishAVideo = asyncHandler(async (req, res) => {
