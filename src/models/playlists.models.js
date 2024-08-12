@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
-const playlistSchema = mongoose.Schema(
+const playlistSchema = new mongoose.Schema(
   {
     name: {
       type: String,
