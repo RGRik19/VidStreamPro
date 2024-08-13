@@ -134,10 +134,20 @@ const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: get video by id
 
-    const video = await Video.findById(videoId);
+    let video = await Video.findById(videoId);
     if (!video)
-        throw new ApiError("Video not found !!", 400);
+        throw new ApiError("Video not found !!", 404);
 
+    video = await Video.findByIdAndUpdate(videoId,
+        {
+            $inc: {
+                views: 1
+            }
+        },
+        {
+            new: true
+        }
+    )
     return res.status(200).json(new ApiResponse(200, "Video fetched successfully", video));
 })
 
